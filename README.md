@@ -1,68 +1,126 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# React LifeCycle API
 
-## Available Scripts
+![](./lifecycle.png)
 
-In the project directory, you can run:
+<br />
+<hr />
 
-### `yarn start`
+### constructor
+```js
+constructor(props) {
+    super(props);
+    console.log('constructor');
+}
+```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+<br />
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+* 컴포넌트가 새로 만들어질때 생성
 
-### `yarn test`
+<br />
+<hr />
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### getDerivedStateFromProps
+```js
+static getDerivedStateFromProps(nextProps, prevState) {
+    if(prevState.value !== nextProps.value) {
+        return { value: nextProps.value };
+    }
+    return null;
+}
+```
 
-### `yarn build`
+<br />
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+* 현재 값과 다음 값을 비교하여 같은면 null 아니면 다음으로 받아올 값으로 변경한다.
+* props 값을 state 와 동기화 시킬때
+* nextProps : 다음으로 받아올 프롭스 값
+* prevState : 현재 업데이트 되기전의 상태를 가져온다
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+<br />
+<hr />
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### shouldComponentUpdate
+```js
+shouldComponentUpdate(nextProps, nextState) {
+    if(nextProps.value === 10) return false;
+    return true;
+}
+```
 
-### `yarn eject`
+<br />
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+* 컴포넌트가 업데이트를 할지 말지 정해주고
+* false 일경우는 렌더링을 안하고
+* true 일경우 렌더링을 한다.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+<br />
+<hr />
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### getSnapshotBeforeUpdate
+```js
+getSnapshotBeforeUpdate(prevProps, prevState) {
+    console.log('getSnapshotBeforeUpdate')
+}
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+<br />
 
-## Learn More
+* DOM 변화하기 직전의 상태를 가져오며
+* 여기서 리턴하는 값은 `componentDidUpdate`에 3번째 파라미터로 받아올수있다.
+* 대게 `prevProps`와 `this.sate`값을 비교하여 이벤트를 발생시킨다.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<br />
+<hr />
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### componentDidUpdate
+```js
+componentDidUpdate(prevProps, prevState, snapshot) {
+    if(this.props.value !== prevProps.value) {
+        console.log('componentDidUpdate', this.props.value);
+    }
+}
+```
 
-### Code Splitting
+<br />
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+* render()를 호출하고난 다음에 발생한다.
 
-### Analyzing the Bundle Size
+<br />
+<hr />
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+### componentWillUnmount
+```js
+componentWillUnmount() {
+    console.log('componentWillUnmount')
+}
+```
 
-### Making a Progressive Web App
+<br />
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+* 컴포넌트가 더 이상 필요하지않을시 사용
+* 이벤트, setTimeout, 외부 라이브러리 인스턴스 제거
 
-### Advanced Configuration
+<br />
+<hr />
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+### componentDidCatch
+```js
+componentDidCatch(error, info) {
+    this.setState({ error: true });
 
-### Deployment
+    // API를 통해서 서버로 오류 내용 날리기
+    console.log(error);
+    console.log(info);
+}
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+<br />
 
-### `yarn build` fails to minify
+* 컴포넌트 자신의 render 함수에서 에러가 발생해버리는것은 잡아낼 수는 없지만,
+* 그 대신에 컴포넌트의 자식 컴포넌트 내부에서 발생하는 에러들을 잡아낼 수 있습니다.
+* 그러므로 에러가 발생하는 컴포넌트가 아닌 부모 컴포넌트에서 실행
+* 실수로 잡지 못했던 잡기위해 에러는 트레킹으로 넘기고 클라이언트에서는 메세지를 출력한다.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+> 출처
+> [LifeCycle API](https://react-anyone.vlpt.us/05.html)
